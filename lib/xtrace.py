@@ -29,7 +29,7 @@ from functools import reduce
 #
 
 def depth_spill_psf(config, xp, yp, energies=None, G=None):
-    nx, ny = config["detector"]["nvirpix"]
+    nx, ny = config["detector"]["nvirpix"] if "nvirpix" in config["detector"] else config["dimensions"]
     sx, sy, d = config["ray_origin"]
     px, py, pz = config["detector"]["pixel_dims"]
     mu = config["detector"]["mu"]
@@ -129,9 +129,9 @@ def gaps_psf(config):
     def gapMatrix(nvp, npm, el_corr, nvpg):
         M = np.identity(nvp)
         #identification of indexes that correspond to the firt el corr pixel in a gap
-        index = np.arange(npm, nvp, npm + nvpg) 
+        index = np.arange(npm-1, nvp-1, npm + nvpg - 2)
         #set the content of those indexes to the electric correlation matrix
-        for i in index:
+        for i in index: # .tolist()
             M[i: i + nvpg, i: i + nvpg] = cupy.asarray(el_corr)
         return M
          
